@@ -3,12 +3,32 @@ var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 
-app.MapGet("/hello-get", () => "[GET]hello world");
-app.MapPost("/hello-post", () => "[POST]hello world");
-app.MapPut("/hello-put", () => "[PUT]hello world");
-app.MapDelete("/hello-delete", () => "[DELETE]hello world");
+app.MapGet("/inline", () => "Inline Lambda");
 
-app.MapMethods("/new-hello-get", new[] { HttpMethods.Get }, () => "[GET] New Hello World!");
-app.MapMethods("/hello-patch", new[] { HttpMethods.Patch }, () => "[PATCH] New Hello World!");
+var handler = () => "Lambda Variable";
+app.MapGet("/var-lambda", handler);
+
+string Hello() => "Local Function";
+app.MapGet("/local-function", Hello);
+
+var myHandler = new HelloHandler();
+app.MapGet("/class", myHandler.Hello);
+
+app.MapGet("/static-class", StaticHelloHandler.Hello);
 
 app.Run();
+
+public class HelloHandler
+{
+    public string Hello()
+    {
+        return "Class";
+    }
+}
+public class StaticHelloHandler
+{
+    public static string Hello()
+    {
+        return "Class";
+    }
+}
