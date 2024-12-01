@@ -2,33 +2,74 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 
+//StudentEndPoints.Map(app);
+app.MapGet("/hello", () => "hello with name")
+    .WithName("hi");
 
-app.MapGet("/inline", () => "Inline Lambda");
+app.MapGet("/url", (LinkGenerator link) =>
+    $"{link.GetPathByName("hi", values: null)}");
 
-var handler = () => "Lambda Variable";
-app.MapGet("/var-lambda", handler);
-
-string Hello() => "Local Function";
-app.MapGet("/local-function", Hello);
-
-var myHandler = new HelloHandler();
-app.MapGet("/class", myHandler.Hello);
-
-app.MapGet("/static-class", StaticHelloHandler.Hello);
+app.MapGroup("/api/students")
+    .MapStudentsApi()
+    .MapGet("/id", async context=> await context.Response.WriteAsJsonAsync(new {Message = "One Student"}))
+    .WithTags("Student Api");
 
 app.Run();
 
-public class HelloHandler
+public static class RouteBuilderExtensions
 {
-    public string Hello()
+    public static RouteGroupBuilder MapStudentsApi(this RouteGroupBuilder group)
     {
-        return "Class";
+
+        group.MapGet("/", async context =>
+        {
+            await context.Response.WriteAsJsonAsync(new { Message = "AllStudents" });
+        });
+
+        group.MapPost("/", async context =>
+        {
+            await context.Response.WriteAsJsonAsync(new { Message = "Insert" });
+
+        });
+
+        group.MapPut("/", async context =>
+        {
+            await context.Response.WriteAsJsonAsync("Edit");
+        });
+
+        group.MapDelete("/", async context =>
+        {
+            await context.Response.WriteAsJsonAsync("Delete");
+        });
+
+        return group;
     }
 }
-public class StaticHelloHandler
-{
-    public static string Hello()
-    {
-        return "Class";
-    }
-}
+//public static class StudentEndPoints
+//{
+//    public static void Map(WebApplication app)
+//    {
+//        app.MapGet("/", async context =>
+//        {
+//            await context.Response.WriteAsJsonAsync(new { Message = "AllStudents" });
+//        });
+
+//        app.MapPost("/", async context =>
+//        {
+//            await context.Response.WriteAsJsonAsync(new { Message = "Insert" });
+
+//        });
+
+//        app.MapPut("/", async context =>
+//        {
+//            await context.Response.WriteAsJsonAsync("Edit");
+//        });
+
+//        app.MapDelete("/", async context =>
+//        {
+//            await context.Response.WriteAsJsonAsync("Delete");
+//        });
+
+//    }
+//}
+

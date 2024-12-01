@@ -21,3 +21,18 @@ GET {{MinimalApiTutorial_HostAddress}}/Newhello-get
 GET {{MinimalApiTutorial_HostAddress}}/hello-get
 
 ###
+
+GET {{MinimalApiTutorial_HostAddress}}/url
+
+###
+
+Get {{MinimalApiTutorial_HostAddress}}/api/students
+
+
+###
+
+Get {{MinimalApiTutorial_HostAddress}}/api/students/id
+
+
+###
+
