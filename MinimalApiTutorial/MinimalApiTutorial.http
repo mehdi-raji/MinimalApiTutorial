@@ -1,6 +1,23 @@
-@MinimalApiTutorial_HostAddress = http://localhost:5135
+@MinimalApiTutorial_HostAddress = https://localhost:7260
 
-GET {{MinimalApiTutorial_HostAddress}}/weatherforecast/
-Accept: application/json
+### Send request
+GET {{MinimalApiTutorial_HostAddress}}/hello-get
+
+### Send request
+DELETE {{MinimalApiTutorial_HostAddress}}/hello-delete
+
+POST {{MinimalApiTutorial_HostAddress}}/hello-post
+
+###
+
+POST {{MinimalApiTutorial_HostAddress}}/hello-post
+
+###
+
+GET {{MinimalApiTutorial_HostAddress}}/Newhello-get
+
+###
+
+GET {{MinimalApiTutorial_HostAddress}}/hello-get
 
 ###
