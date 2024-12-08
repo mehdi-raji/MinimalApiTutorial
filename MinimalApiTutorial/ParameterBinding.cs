@@ -8,26 +8,16 @@ using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 
-var builder = WebApplication.CreateBuilder(args);
-
-
-
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-var app = builder.Build();
-
-public static class ParemeterBindig
+public static class ParameterBinding
 {
-	public static void ParametrBinding(this WebApplication app)
+	public static void Bind(this WebApplication app)
 	{
 		//1.Route Parameters
 		app.MapGet("/developers/{id:int}", (int id) =>
 		{
 			return TypedResults.Ok($"Fetching developer with ID: {id}");
-		});
+		}).WithTags("Parameter Binding");
+           
 
 
 		//2.Query String Parameters
@@ -36,7 +26,7 @@ public static class ParemeterBindig
 			if (string.IsNullOrWhiteSpace(name))
 				return Results.NotFound();
 			return TypedResults.Ok(new { message = "Searching developer with name: {name}" });
-		});
+		}).WithTags("Parameter Binding");
 
 		//3. Header Parameters
 		app.MapGet("/developers/validate", ([FromHeader(Name = "X-API-Key")] string apiKey) =>
@@ -46,13 +36,13 @@ public static class ParemeterBindig
 				return Results.Unauthorized();
 			}
 			return Results.Ok(new { Authorization = apiKey });
-		});
+		}).WithTags("Parameter Binding");
 
 		//4.Body Parameters
 		app.MapPost("/developers", (SoftwareDeveloper developer) =>
 		{
 			return TypedResults.Ok($"Received developer: {developer.Name}, Specialization: {developer.Specialization}");
-		});
+		}).WithTags("Parameter Binding");
 
 
 		//5. FromBody
@@ -62,7 +52,7 @@ public static class ParemeterBindig
 			var specialization = dev.Specialization;
 
 			return TypedResults.Ok($"Received developer: {name}, Specialization: {specialization}");
-		});
+		}).WithTags("Parameter Binding");
 
 
 		//6.Form Parameters
@@ -73,7 +63,7 @@ public static class ParemeterBindig
 			var specialization = form["specialization"].ToString();
 
 			return TypedResults.Ok($"Received developer: {name}, Specialization: {specialization}");
-		});
+		}).WithTags("Parameter Binding");
 
 
 		//7.Services Injection
@@ -81,14 +71,14 @@ public static class ParemeterBindig
 		{
 			logger.LogInformation("Service-based handler invoked.");
 			return TypedResults.Ok("Service injection is working!");
-		});
+		}).WithTags("Parameter Binding");
 
 		//8.From Services
 		app.MapGet("/developers/fromservices", ([FromServices] DeveloperService DevService) =>
 		{
 			var welcome = DevService.GiveWelcomePackage();
 			return TypedResults.Ok($"welcome package means : {welcome}");
-		});
+		}).WithTags("Parameter Binding");
 
 
 		//9.Raw HttpContext
@@ -96,7 +86,7 @@ public static class ParemeterBindig
 		{
 			var requestMethod = context.Request.Method;
 			return TypedResults.Ok($"Request Method: {requestMethod}");
-		});
+		}).WithTags("Parameter Binding");
 
 
 
@@ -109,7 +99,7 @@ public static class ParemeterBindig
 							 => {
 
 							 }
-		);
+		).WithTags("Parameter Binding");
 
 	}
 }
@@ -126,7 +116,6 @@ public class SoftwareDeveloper
     public string Name { get; set; }
     public int Experience { get; set; }
     public string? Specialization { get; set; }
-
 
 
 
