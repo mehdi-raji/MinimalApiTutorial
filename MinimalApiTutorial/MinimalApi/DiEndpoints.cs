@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
 
 namespace MinimalApiTutorial.MinimalApi
 {
@@ -11,19 +14,33 @@ namespace MinimalApiTutorial.MinimalApi
 
             #region EndPoints
 
-            // Get all developers
             endpoints.MapGet("/developers", GetAllDevelopersAsync);
 
-            // Get a developer by ID
             endpoints.MapGet("/developers/{id:int}", GetDeveloperByIdAsync);
-
-            // Create a new developer
             endpoints.MapPost("/developers", AddDeveloperAsync);
+            
+            endpoints.MapPost("/developers2",
+                async (SoftwareDeveloper developer, ISoftwareDeveloperService service,
+                    IValidator<SoftwareDeveloper> validator, CancellationToken cancellationToken) =>
+                {
+                    var validationResult = await validator.ValidateAsync(developer, cancellationToken);
 
-            // Update an existing developer
+                    if (!validationResult.IsValid)
+                    {
+                        var errors = validationResult.Errors.Select(e => new
+                        {
+                            Field = e.PropertyName,
+                            Error = e.ErrorMessage
+                        });
+
+                        return Results.BadRequest(errors);
+                    }
+                    var addedDeveloper = await service.AddAsync(developer, cancellationToken);
+                    return TypedResults.Created($"/developers/{addedDeveloper.Id}", addedDeveloper);
+                });
+
             endpoints.MapPut("/developers/{id:int}", UpdateDeveloperAsync);
 
-            // Delete a developer by ID
             endpoints.MapDelete("/developers/{id:int}", DeleteDeveloperAsync);
 
             #endregion
@@ -45,11 +62,24 @@ namespace MinimalApiTutorial.MinimalApi
                 : TypedResults.NotFound($"Developer with ID {id} not found.");
         }
 
-        private static async Task<Created<SoftwareDeveloper>> AddDeveloperAsync(SoftwareDeveloper developer, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<Results<Created<SoftwareDeveloper>, BadRequest<IEnumerable<ValidationError>>>> AddDeveloperAsync(
+            SoftwareDeveloper developer,
+            ISoftwareDeveloperService service,
+            IValidator<SoftwareDeveloper> validator,
+            CancellationToken cancellationToken)
         {
+            var validationResult = await validator.ValidateAsync(developer, cancellationToken);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => new ValidationError(e.PropertyName, e.ErrorMessage));
+                return TypedResults.BadRequest(errors);
+            }
+
             var addedDeveloper = await service.AddAsync(developer, cancellationToken);
             return TypedResults.Created($"/developers/{addedDeveloper.Id}", addedDeveloper);
         }
+
 
         private static async Task<Results<Ok<SoftwareDeveloper>, NotFound<string>, BadRequest<string>>> UpdateDeveloperAsync(int id, SoftwareDeveloper developer, ISoftwareDeveloperService service, CancellationToken cancellationToken)
         {

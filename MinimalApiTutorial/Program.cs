@@ -1,6 +1,8 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.OpenApi.Models;
 using MinimalApiTutorial.MinimalApi;
+using MinimalApiTutorial.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -11,7 +13,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddScoped<DeveloperService>();
 builder.Services.AddSingleton<ISoftwareDeveloperRepository, SoftwareDeveloperRepository>();
 builder.Services.AddScoped<ISoftwareDeveloperService, SoftwareDeveloperService>();
-
+builder.Services.AddValidatorsFromAssemblyContaining<SoftwareDeveloperValidator>();
 
 var app = builder.Build();
 

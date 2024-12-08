@@ -110,13 +110,3 @@ public class DeveloperService
         return "Laptop and so many other things...";
     }
 }
-public class SoftwareDeveloper
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public int Experience { get; set; }
-    public string? Specialization { get; set; }
-
-
-
-}
