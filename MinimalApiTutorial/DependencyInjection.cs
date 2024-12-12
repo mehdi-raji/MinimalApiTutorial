@@ -2,7 +2,7 @@
 public interface ISoftwareDeveloperRepository
 {
     Task<IEnumerable<SoftwareDeveloper>> GetAllAsync(CancellationToken cancellationToken);
-    Task<SoftwareDeveloper?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<IResult> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<SoftwareDeveloper> AddAsync(SoftwareDeveloper developer, CancellationToken cancellationToken);
     Task<SoftwareDeveloper?> UpdateAsync(SoftwareDeveloper developer, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
@@ -12,7 +12,7 @@ public interface ISoftwareDeveloperRepository
 public interface ISoftwareDeveloperService
 {
     Task<IEnumerable<SoftwareDeveloper>> GetAllAsync(CancellationToken cancellationToken);
-    Task<SoftwareDeveloper?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task<IResult> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<SoftwareDeveloper> AddAsync(SoftwareDeveloper developer, CancellationToken cancellationToken);
     Task<SoftwareDeveloper?> UpdateAsync(SoftwareDeveloper developer, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
@@ -37,10 +37,12 @@ public class SoftwareDeveloperRepository : ISoftwareDeveloperRepository
         return _developers;
     }
 
-    public async Task<SoftwareDeveloper?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<IResult> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         await Task.Delay(1, cancellationToken); // Simulate async behavior
-        return _developers.FirstOrDefault(d => d.Id == id);
+        var value = _developers.FirstOrDefault(d => d.Id == id);
+        var test = value.ToResult();
+        return test ;
     }
 
     public async Task<SoftwareDeveloper> AddAsync(SoftwareDeveloper developer, CancellationToken cancellationToken)
@@ -90,7 +92,7 @@ public class SoftwareDeveloperService : ISoftwareDeveloperService
     public Task<IEnumerable<SoftwareDeveloper>> GetAllAsync(CancellationToken cancellationToken) =>
         _repository.GetAllAsync(cancellationToken);
 
-    public Task<SoftwareDeveloper?> GetByIdAsync(int id, CancellationToken cancellationToken) =>
+    public Task<IResult> GetByIdAsync(int id, CancellationToken cancellationToken) =>
         _repository.GetByIdAsync(id, cancellationToken);
 
     public Task<SoftwareDeveloper> AddAsync(SoftwareDeveloper developer, CancellationToken cancellationToken) =>

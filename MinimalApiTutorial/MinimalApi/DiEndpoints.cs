@@ -38,9 +38,7 @@ namespace MinimalApiTutorial.MinimalApi
         private static async Task<IResult> GetDeveloperByIdAsync([AsParameters] SoftwareDeveloperRequest request, CancellationToken cancellationToken)
         {
             var developer = await request.Service.GetByIdAsync(request.Id, cancellationToken);
-            return developer is not null
-                ? TypedResults.Ok(developer)
-                : TypedResults.NotFound($"Developer with ID {request.Id} not found.");
+            return developer ?? TypedResults.NotFound($"Developer with ID {request.Id} not found.");
         }
 
         // private static async Task<IResult> GetDeveloperByIdAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
