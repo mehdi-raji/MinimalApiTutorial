@@ -17,28 +17,9 @@ namespace MinimalApiTutorial.MinimalApi
             endpoints.MapGet("/developers", GetAllDevelopersAsync);
 
             endpoints.MapGet("/developers/{id:int}", GetDeveloperByIdAsync);
+
             endpoints.MapPost("/developers", AddDeveloperAsync);
             
-            endpoints.MapPost("/developers2",
-                async (SoftwareDeveloper developer, ISoftwareDeveloperService service,
-                    IValidator<SoftwareDeveloper> validator, CancellationToken cancellationToken) =>
-                {
-                    var validationResult = await validator.ValidateAsync(developer, cancellationToken);
-
-                    if (!validationResult.IsValid)
-                    {
-                        var errors = validationResult.Errors.Select(e => new
-                        {
-                            Field = e.PropertyName,
-                            Error = e.ErrorMessage
-                        });
-
-                        return Results.BadRequest(errors);
-                    }
-                    var addedDeveloper = await service.AddAsync(developer, cancellationToken);
-                    return TypedResults.Created($"/developers/{addedDeveloper.Id}", addedDeveloper);
-                });
-
             endpoints.MapPut("/developers/{id:int}", UpdateDeveloperAsync);
 
             endpoints.MapDelete("/developers/{id:int}", DeleteDeveloperAsync);
@@ -48,13 +29,13 @@ namespace MinimalApiTutorial.MinimalApi
 
         #region Endpoint Handlers
 
-        private static async Task<Ok<IEnumerable<SoftwareDeveloper>>> GetAllDevelopersAsync(ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> GetAllDevelopersAsync(ISoftwareDeveloperService service, CancellationToken cancellationToken)
         {
             var developers = await service.GetAllAsync(cancellationToken);
             return TypedResults.Ok(developers);
         }
 
-        private static async Task<Results<Ok<SoftwareDeveloper>, NotFound<string>>> GetDeveloperByIdAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> GetDeveloperByIdAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
         {
             var developer = await service.GetByIdAsync(id, cancellationToken);
             return developer is not null
@@ -62,7 +43,7 @@ namespace MinimalApiTutorial.MinimalApi
                 : TypedResults.NotFound($"Developer with ID {id} not found.");
         }
 
-        private static async Task<Results<Created<SoftwareDeveloper>, BadRequest<IEnumerable<ValidationError>>>> AddDeveloperAsync(
+        private static async Task<IResult> AddDeveloperAsync(
             SoftwareDeveloper developer,
             ISoftwareDeveloperService service,
             IValidator<SoftwareDeveloper> validator,
@@ -81,7 +62,7 @@ namespace MinimalApiTutorial.MinimalApi
         }
 
 
-        private static async Task<Results<Ok<SoftwareDeveloper>, NotFound<string>, BadRequest<string>>> UpdateDeveloperAsync(int id, SoftwareDeveloper developer, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> UpdateDeveloperAsync(int id, SoftwareDeveloper developer, ISoftwareDeveloperService service, CancellationToken cancellationToken)
         {
             if (id != developer.Id)
             {
@@ -94,7 +75,7 @@ namespace MinimalApiTutorial.MinimalApi
                 : TypedResults.NotFound($"Developer with ID {id} not found.");
         }
 
-        private static async Task<Ok<bool>> DeleteDeveloperAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> DeleteDeveloperAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
         {
             var success = await service.DeleteAsync(id, cancellationToken);
             return TypedResults.Ok(success);
