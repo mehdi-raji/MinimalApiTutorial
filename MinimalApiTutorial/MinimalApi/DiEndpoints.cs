@@ -35,13 +35,21 @@ namespace MinimalApiTutorial.MinimalApi
             return TypedResults.Ok(developers);
         }
 
-        private static async Task<IResult> GetDeveloperByIdAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> GetDeveloperByIdAsync([AsParameters] SoftwareDeveloperRequest request, CancellationToken cancellationToken)
         {
-            var developer = await service.GetByIdAsync(id, cancellationToken);
+            var developer = await request.Service.GetByIdAsync(request.Id, cancellationToken);
             return developer is not null
                 ? TypedResults.Ok(developer)
-                : TypedResults.NotFound($"Developer with ID {id} not found.");
+                : TypedResults.NotFound($"Developer with ID {request.Id} not found.");
         }
+
+        // private static async Task<IResult> GetDeveloperByIdAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        // {
+        //     var developer = await service.GetByIdAsync(id, cancellationToken);
+        //     return developer is not null
+        //         ? TypedResults.Ok(developer)
+        //         : TypedResults.NotFound($"Developer with ID {id} not found.");
+        // }
 
         private static async Task<IResult> AddDeveloperAsync(
             SoftwareDeveloper developer,
@@ -62,17 +70,17 @@ namespace MinimalApiTutorial.MinimalApi
         }
 
 
-        private static async Task<IResult> UpdateDeveloperAsync(int id, SoftwareDeveloper developer, ISoftwareDeveloperService service, CancellationToken cancellationToken)
+        private static async Task<IResult> UpdateDeveloperAsync([AsParameters] CreateSoftwareDeveloperRequest request, CancellationToken cancellationToken)
         {
-            if (id != developer.Id)
+            if (request.Id != request.Developer.Id)
             {
                 return TypedResults.BadRequest("ID in route does not match ID in body.");
             }
 
-            var updatedDeveloper = await service.UpdateAsync(developer, cancellationToken);
+            var updatedDeveloper = await request.Service.UpdateAsync(request.Developer, cancellationToken);
             return updatedDeveloper is not null
                 ? TypedResults.Ok(updatedDeveloper)
-                : TypedResults.NotFound($"Developer with ID {id} not found.");
+                : TypedResults.NotFound($"Developer with ID {request.Id} not found.");
         }
 
         private static async Task<IResult> DeleteDeveloperAsync(int id, ISoftwareDeveloperService service, CancellationToken cancellationToken)
@@ -82,5 +90,18 @@ namespace MinimalApiTutorial.MinimalApi
         }
 
         #endregion
+    }
+
+    struct CreateSoftwareDeveloperRequest
+    {
+        public int Id { get; set; }
+        public SoftwareDeveloper Developer { get; set; }
+        public ISoftwareDeveloperService Service { get; set; }
+    }
+    struct SoftwareDeveloperRequest
+    {
+        public int Id { get; set; }
+        public ISoftwareDeveloperService Service { get; set; } 
+
     }
 }
